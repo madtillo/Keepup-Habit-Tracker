@@ -1,147 +1,105 @@
-import { useEffect, useRef, useState } from 'react'
-import { exportData, importData, useSettings, useStore } from '../lib/store'
-import { updateSettings } from '../lib/actions'
-import { supabase, syncAvailable } from '../lib/supabase'
-import { syncNow, useSync } from '../lib/sync'
-import { currentSubscription, disablePush, enablePush, isIOS, isStandalone, pushSupported, testPush } from '../lib/push'
-import { nav } from '../lib/nav'
-import type { Accent, Theme } from '../lib/types'
-import { Switch } from '../components/ui'
-import { ChevronRight } from '../components/Icons'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { exportData, importData, useSettings } from '../lib/store'
+import { syncAvailable } from '../lib/supabase'
+import { useSync } from '../lib/sync'
+import { currentSubscription, isStandalone } from '../lib/push'
+import { nav, type SettingsPage } from '../lib/nav'
+import { ArrowRight, Archive, Check, StatsIcon, BellFill, ChevronRight, Cloud, Download, Hand, HomeAdd, Moon, Pencil, Phone, Sparkle, Timer, Upload, User } from '../components/Icons'
 
-const ACCENTS: { id: Accent; color: string; label: string }[] = [
-  { id: 'mono', color: 'var(--fg)', label: 'Monochrom' },
-  { id: 'blue', color: '#4b8ef0', label: 'Blau' },
-  { id: 'green', color: '#34c77b', label: 'Grün' },
-  { id: 'orange', color: '#f59e2c', label: 'Orange' },
-  { id: 'pink', color: '#f2558a', label: 'Pink' },
-  { id: 'purple', color: '#9b6cf6', label: 'Lila' },
-]
+export function SettingRow({ icon, label, value, onClick, danger }: { icon: ReactNode; label: string; value?: ReactNode; onClick: () => void; danger?: boolean }) {
+  return (
+    <button className="set-row" onClick={onClick} style={danger ? { color: 'var(--danger)' } : undefined}>
+      <span className="set-icon">{icon}</span>
+      <span className="set-body">
+        <span className="set-label">{label}</span>
+        {value !== undefined && <span className="set-value">{value}</span>}
+        <ChevronRight size={18} strokeWidth={2.4} className="set-chev" />
+      </span>
+    </button>
+  )
+}
+
+export function downloadBackup() {
+  const blob = new Blob([exportData()], { type: 'application/json' })
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = `keepup-sicherung-${new Date().toISOString().slice(0, 10)}.json`
+  a.click()
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000)
+}
 
 export function Settings() {
   const s = useSettings()
-  const { status, session, lastSync } = useSync()
-  const dirty = useStore(st => Object.keys(st.dirty).length)
-  const [pushOn, setPushOn] = useState(false)
-  const [busy, setBusy] = useState(false)
+  const { session } = useSync()
+  const [pushOn, setPushOn] = useState<boolean | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const open = (page: SettingsPage) => nav.open({ kind: 'settingsPage', page })
 
   useEffect(() => { void currentSubscription().then(sub => setPushOn(!!sub)) }, [])
 
-  const togglePush = async (on: boolean) => {
-    setBusy(true)
-    try {
-      if (on) { await enablePush(); setPushOn(true); nav.toast('Erinnerungen aktiviert 🔔') }
-      else { await disablePush(); setPushOn(false) }
-    } catch (e) {
-      nav.toast((e as Error).message)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const statusText = !syncAvailable ? 'Nicht eingerichtet'
-    : !session ? 'Nicht angemeldet'
-    : status === 'syncing' ? 'Synchronisiere …'
-    : status === 'error' ? 'Fehler – erneut versuchen'
-    : status === 'offline' ? 'Offline'
-    : dirty ? `${dirty} Änderungen ausstehend`
-    : lastSync ? `Synchronisiert ${new Date(lastSync).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}` : 'Bereit'
-
-  const download = () => {
-    const blob = new Blob([exportData()], { type: 'application/json' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `keepup-backup-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000)
-  }
+  const theme = { dark: 'Dunkel', light: 'Hell', system: 'System' }[s.theme]
 
   return (
     <div className="page">
       <div className="page-header"><h1 className="large-title">Einstellungen</h1></div>
 
-      <div className="card pro-banner">
-        <span className="emoji">💎</span>
-        <div><b>Keepup Pro</b><div className="muted" style={{ fontSize: 14, marginTop: 2 }}>Alle Funktionen freigeschaltet – unbegrenzte Habits, Statistiken, Erinnerungen.</div></div>
-      </div>
-
-      <div className="section-title">Konto & Sync</div>
-      <div className="list-group">
-        {session ? (
-          <>
-            <div className="list-row static"><span>☁️</span><span className="grow">{session.user.email}</span></div>
-            <button className="list-row" onClick={() => void syncNow()}><span>🔄</span><span className="grow">Jetzt synchronisieren</span><span className="value">{statusText}</span></button>
-            <button className="list-row" style={{ color: 'var(--danger)' }} onClick={() => nav.confirm('Abmelden? Die Daten bleiben in deinem Konto gespeichert und werden von diesem Gerät entfernt.', 'Abmelden', async () => {
-              await disablePush().catch(() => {})
-              await supabase?.auth.signOut()
-              useStore.getState().reset()
-            })}><span>🚪</span><span className="grow">Abmelden</span></button>
-          </>
-        ) : (
-          <button className="list-row" onClick={() => syncAvailable ? nav.open({ kind: 'auth' }) : nav.toast('Supabase ist noch nicht eingerichtet (siehe README).')}>
-            <span>☁️</span><span className="grow">Anmelden & synchronisieren</span><span className="value">{statusText}</span><ChevronRight size={18} className="faint" />
-          </button>
-        )}
-      </div>
-
-      <div className="section-title">Erinnerungen</div>
-      <div className="list-group">
-        <div className="list-row static">
-          <span>🔔</span>
-          <span className="grow">Push-Benachrichtigungen</span>
-          <Switch on={pushOn} onChange={v => !busy && void togglePush(v)} />
+      <div className="card profile-card">
+        <div className="avatar">
+          <User size={40} />
+          <span className="avatar-badge">✓</span>
         </div>
-        {pushOn && <button className="list-row" onClick={() => void testPush()}><span>🧪</span><span className="grow">Test-Benachrichtigung</span></button>}
-        <div className="list-row static">
-          <span>🙂</span>
-          <span className="grow">Tägliche Stimmungsabfrage</span>
-          <input type="time" className="time-input" value={s.moodReminder ?? ''} onChange={e => updateSettings({ moodReminder: e.target.value || null })} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="profile-name">{s.name || 'Dein Name'}</div>
+          <div className="muted profile-sub">
+            {session ? <Cloud size={17} /> : <Phone size={17} />}
+            <span className="ellipsis">{session ? session.user.email : 'Lokal · ohne Account'}</span>
+          </div>
         </div>
+        <button className="circle-btn small" style={{ width: 46, height: 46 }} onClick={() => open('profile')} aria-label="Profil bearbeiten"><Pencil size={20} /></button>
       </div>
-      {!pushSupported() && isIOS() && !isStandalone() && (
-        <p className="hint" style={{ fontSize: 14 }}>Auf dem iPhone funktionieren Benachrichtigungen nur, wenn du Keepup über <b>Teilen → Zum Home-Bildschirm</b> hinzufügst und von dort öffnest.</p>
-      )}
-      {!session && syncAvailable && <p className="hint" style={{ fontSize: 14 }}>Für Erinnerungen musst du angemeldet sein.</p>}
 
-      <div className="section-title">Darstellung</div>
-      <div className="segmented">
-        {(['dark', 'light', 'system'] as Theme[]).map(t => (
-          <button key={t} className={s.theme === t ? 'active' : ''} onClick={() => updateSettings({ theme: t })}>
-            {{ dark: 'Dunkel', light: 'Hell', system: 'System' }[t]}
-          </button>
-        ))}
-      </div>
-      <div className="card" style={{ padding: '16px 18px', marginTop: 12 }}>
-        <div className="muted" style={{ fontSize: 14, marginBottom: 12 }}>Akzentfarbe</div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          {ACCENTS.map(a => (
-            <button key={a.id} aria-label={a.label} onClick={() => updateSettings({ accent: a.id })}
-              style={{ width: 40, height: 40, borderRadius: '50%', background: a.color, boxShadow: s.accent === a.id ? '0 0 0 3px var(--card), 0 0 0 5px var(--fg)' : undefined, transition: 'box-shadow .2s' }} />
-          ))}
+      <div className="card pro-card">
+        <div className="pro-text">
+          <div className="pro-brand">Keepup <span className="pro-pill">PRO</span></div>
+          <div className="pro-title">Alles für deine Routinen.</div>
         </div>
+        <div className="pro-art" aria-hidden>
+          <span className="tile light"><Check size={26} strokeWidth={3} /></span>
+          <span className="tile dark"><StatsIcon size={24} /></span>
+        </div>
+        <p className="muted pro-desc">Unbegrenzte Habits, volle Statistiken und Erinnerungen – dauerhaft freigeschaltet.</p>
+        <button className="pro-btn" onClick={() => open('pro')}>Pro ist aktiv <ArrowRight size={20} /></button>
       </div>
 
-      <div className="section-title">Allgemein</div>
-      <div className="list-group">
-        <div className="list-row static"><span>😊</span><span className="grow">Stimmung auf „Heute“ abfragen</span><Switch on={s.showMood} onChange={v => updateSettings({ showMood: v })} /></div>
-        <button className="list-row" onClick={() => nav.open({ kind: 'archive' })}><span>🏛️</span><span className="grow">Archivierte Habits</span><ChevronRight size={18} className="faint" /></button>
-        <button className="list-row" onClick={() => nav.open({ kind: 'focus' })}><span>⏱️</span><span className="grow">Fokus-Timer</span><span className="value">{s.focusMinutes} min</span><ChevronRight size={18} className="faint" /></button>
+      <div className="section-title set-title">Allgemein</div>
+      <div className="set-group">
+        <SettingRow icon={<Moon size={20} />} label="Darstellung" value={theme} onClick={() => open('appearance')} />
+        <SettingRow icon={<BellFill size={20} />} label="Mitteilungen" value={pushOn === null ? '' : pushOn ? 'Erlaubt' : 'Aus'} onClick={() => open('notifications')} />
+        <SettingRow icon={<Timer size={20} />} label="Fokus-Timer" value={`${s.focusMinutes} min`} onClick={() => nav.open({ kind: 'focus' })} />
+        <SettingRow icon={<Archive size={20} />} label="Archivierte Habits" onClick={() => nav.open({ kind: 'archive' })} />
       </div>
 
-      <div className="section-title">Daten</div>
-      <div className="list-group">
-        <button className="list-row" onClick={download}><span>📤</span><span className="grow">Backup exportieren</span></button>
-        <button className="list-row" onClick={() => fileRef.current?.click()}><span>📥</span><span className="grow">Backup importieren</span></button>
+      <div className="section-title set-title">Daten</div>
+      <div className="set-group">
+        <SettingRow icon={<Cloud size={20} />} label="Cloud-Sync" value={session ? 'An' : syncAvailable ? 'Aus' : ''} onClick={() => open('sync')} />
+        <SettingRow icon={<Upload size={20} />} label="Sicherung exportieren" onClick={downloadBackup} />
+        <SettingRow icon={<Download size={20} />} label="Sicherung wiederherstellen" onClick={() => fileRef.current?.click()} />
+        <SettingRow icon={<Hand size={20} />} label="Datenschutz & lokale Daten" value={session ? 'Cloud' : 'Lokal'} onClick={() => open('privacy')} />
       </div>
       <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={async e => {
         const f = e.target.files?.[0]
         e.target.value = ''
         if (!f) return
-        try { importData(await f.text()); nav.toast('Backup importiert ✅') } catch (err) { nav.toast((err as Error).message) }
+        try { importData(await f.text()); nav.toast('Sicherung wiederhergestellt ✅') } catch (err) { nav.toast((err as Error).message) }
       }} />
 
-      <p className="faint" style={{ textAlign: 'center', fontSize: 13, marginTop: 34 }}>Keepup · Version 1.0</p>
+      <div className="section-title set-title">Hilfe & Info</div>
+      <div className="set-group">
+        <SettingRow icon={<HomeAdd size={20} />} label="Zum Home-Bildschirm" value={isStandalone() ? 'Installiert' : ''} onClick={() => open('install')} />
+        <SettingRow icon={<Sparkle size={20} />} label="Was ist neu?" onClick={() => open('whatsnew')} />
+      </div>
+
+      <p className="faint" style={{ textAlign: 'center', fontSize: 13, marginTop: 30 }}>Keepup · Version 1.1</p>
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3.6.7'
 
 interface Sub { endpoint: string; user_id: string; p256dh: string; auth: string; timezone: string }
-type Schedule = { type: 'daily' } | { type: 'weekdays'; days: number[] } | { type: 'perWeek'; count: number }
+type Schedule = { type: 'daily' } | { type: 'weekdays'; days: number[] } | { type: 'perWeek'; count: number } | { type: 'perMonth'; count: number }
 interface Habit { id: string; name: string; emoji: string; goal: number; schedule: Schedule; reminders: string[]; archived: boolean; deleted?: boolean }
 
 const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
@@ -56,7 +56,9 @@ Deno.serve(async req => {
     if (habits.length) {
       const weekStart = addDays(date, -wd)
       const weekDates = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
-      const ids = habits.flatMap(h => weekDates.map(d => `${h.id}_${d}`))
+      const monthDates: string[] = []
+      for (let d = date.slice(0, 8) + '01'; d.slice(0, 7) === date.slice(0, 7); d = addDays(d, 1)) monthDates.push(d)
+      const ids = habits.flatMap(h => (h.schedule.type === 'perMonth' ? monthDates : weekDates).map(d => `${h.id}_${d}`))
       const { data: entryRows } = await supabase.from('records').select('id,data')
         .eq('user_id', userId).eq('collection', 'entries').in('id', ids)
       const count = new Map((entryRows ?? []).filter(r => !r.data.deleted).map(r => [r.id as string, r.data.count as number]))
@@ -66,6 +68,10 @@ Deno.serve(async req => {
         if (today >= h.goal) continue
         if (h.schedule.type === 'perWeek') {
           const doneDays = weekDates.filter(d => (count.get(`${h.id}_${d}`) ?? 0) >= h.goal).length
+          if (doneDays >= h.schedule.count) continue
+        }
+        if (h.schedule.type === 'perMonth') {
+          const doneDays = monthDates.filter(d => (count.get(`${h.id}_${d}`) ?? 0) >= h.goal).length
           if (doneDays >= h.schedule.count) continue
         }
         messages.push({

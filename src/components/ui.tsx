@@ -166,3 +166,20 @@ export function useToday(): string {
   }, [])
   return t
 }
+
+/** Kleines Blatt von unten (z. B. Emoji- oder Zeitauswahl) */
+export function BottomSheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+  return (
+    <div className="backdrop" onClick={onClose}>
+      <div className="action-sheet" onClick={e => e.stopPropagation()}>
+        <div className="panel" style={{ padding: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 14 }}>
+            <b style={{ flex: 1, fontSize: 17 }}>{title}</b>
+            <button className="circle-btn small" onClick={onClose} aria-label="Schließen"><X size={18} /></button>
+          </div>
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}

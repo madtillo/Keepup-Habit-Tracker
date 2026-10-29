@@ -1,5 +1,5 @@
 import type { Entry, Habit } from './types'
-import { addDays, iso, startOfWeek, today, weekday, weekDays } from './date'
+import { addDays, iso, parse, startOfWeek, today, weekday, weekDays } from './date'
 
 type Entries = Record<string, Entry>
 
@@ -23,10 +23,28 @@ export function weekDoneCount(h: Habit, entries: Entries, date: string): number 
   return weekDays(date).filter(d => doneOn(h, entries, d)).length
 }
 
+function monthDates(date: string): string[] {
+  const d = parse(date)
+  const n = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()
+  return Array.from({ length: n }, (_, i) => `${date.slice(0, 8)}${String(i + 1).padStart(2, '0')}`)
+}
+
+export function monthDoneCount(h: Habit, entries: Entries, date: string): number {
+  return monthDates(date).filter(d => doneOn(h, entries, d)).length
+}
+
+/** Fortschritt im Zeitraum (Woche/Monat) für "Nx pro Woche/Monat" */
+export function periodProgress(h: Habit, entries: Entries, date: string): { done: number; target: number } | null {
+  if (h.schedule.type === 'perWeek') return { done: weekDoneCount(h, entries, date), target: h.schedule.count }
+  if (h.schedule.type === 'perMonth') return { done: monthDoneCount(h, entries, date), target: h.schedule.count }
+  return null
+}
+
 /** Muss der Habit an diesem Tag noch erledigt werden? */
 export function isOpen(h: Habit, entries: Entries, date: string): boolean {
   if (!isScheduled(h, date) || doneOn(h, entries, date)) return false
   if (h.schedule.type === 'perWeek') return weekDoneCount(h, entries, date) < h.schedule.count
+  if (h.schedule.type === 'perMonth') return monthDoneCount(h, entries, date) < h.schedule.count
   return true
 }
 
@@ -41,8 +59,25 @@ function firstDay(h: Habit, entries: Entries): string {
   return first
 }
 
+function prevMonth(date: string): string {
+  const d = parse(date)
+  const p = new Date(d.getFullYear(), d.getMonth() - 1, 1)
+  return `${p.getFullYear()}-${String(p.getMonth() + 1).padStart(2, '0')}-01`
+}
+
 export function currentStreak(h: Habit, entries: Entries, ref = today()): number {
   const start = firstDay(h, entries)
+  if (h.schedule.type === 'perMonth') {
+    const target = h.schedule.count
+    let m = ref.slice(0, 8) + '01'
+    let n = 0
+    if (monthDoneCount(h, entries, m) < target) m = prevMonth(m)
+    while (m >= start.slice(0, 8) + '01' && monthDoneCount(h, entries, m) >= target) {
+      n++
+      m = prevMonth(m)
+    }
+    return n
+  }
   if (h.schedule.type === 'perWeek') {
     const target = h.schedule.count
     let wk = startOfWeek(ref)
@@ -71,6 +106,16 @@ export function bestStreak(h: Habit, entries: Entries, ref = today()): number {
   const start = firstDay(h, entries)
   let best = 0
   let run = 0
+  if (h.schedule.type === 'perMonth') {
+    const target = h.schedule.count
+    const months: string[] = []
+    for (let m = ref.slice(0, 8) + '01'; m >= start.slice(0, 8) + '01'; m = prevMonth(m)) months.unshift(m)
+    for (const m of months) {
+      if (monthDoneCount(h, entries, m) >= target) best = Math.max(best, ++run)
+      else if (m !== ref.slice(0, 8) + '01') run = 0
+    }
+    return best
+  }
   if (h.schedule.type === 'perWeek') {
     const target = h.schedule.count
     for (let wk = startOfWeek(start); wk <= ref; wk = addDays(wk, 7)) {
@@ -89,6 +134,7 @@ export function bestStreak(h: Habit, entries: Entries, ref = today()): number {
 
 export function streakUnit(h: Habit, n: number): string {
   if (h.schedule.type === 'perWeek') return n === 1 ? 'Woche' : 'Wochen'
+  if (h.schedule.type === 'perMonth') return n === 1 ? 'Monat' : 'Monate'
   return n === 1 ? 'Tag' : 'Tage'
 }
 
@@ -100,6 +146,12 @@ export function doneInRange(h: Habit, entries: Entries, days: string[]): number 
 export function successRate(h: Habit, entries: Entries, days: string[]): number {
   const t = today()
   const start = firstDay(h, entries)
+  if (h.schedule.type === 'perMonth') {
+    const target = h.schedule.count
+    const months = [...new Set(days.filter(d => d <= t && d >= start).map(d => d.slice(0, 8) + '01'))]
+    if (!months.length) return 0
+    return months.reduce((sum, m) => sum + Math.min(1, monthDoneCount(h, entries, m) / target), 0) / months.length
+  }
   if (h.schedule.type === 'perWeek') {
     const weeks = [...new Set(days.filter(d => d <= t && d >= start).map(startOfWeek))]
     if (!weeks.length) return 0
@@ -115,6 +167,7 @@ export function scheduleLabel(h: Pick<Habit, 'schedule'>): string {
   const s = h.schedule
   if (s.type === 'daily') return 'Täglich'
   if (s.type === 'perWeek') return `${s.count}× pro Woche`
+  if (s.type === 'perMonth') return `${s.count}× pro Monat`
   if (s.days.length === 7) return 'Täglich'
   if (s.days.length === 5 && [0, 1, 2, 3, 4].every(d => s.days.includes(d))) return 'Werktags'
   if (s.days.length === 2 && s.days.includes(5) && s.days.includes(6)) return 'Am Wochenende'

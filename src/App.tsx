@@ -16,6 +16,7 @@ import { TodoList } from './screens/TodoList'
 import { ArchiveSheet } from './screens/ArchiveSheet'
 import { Focus } from './screens/Focus'
 import { Auth } from './screens/Auth'
+import { SettingsPageView } from './screens/SettingsPages'
 
 const TABS: { id: Tab; label: string; Icon: typeof Sun }[] = [
   { id: 'today', label: 'Heute', Icon: Sun },
@@ -82,6 +83,7 @@ export default function App() {
           case 'archive': return <ArchiveSheet key={key} {...p} />
           case 'focus': return <Focus key={key} todoId={route.todoId} {...p} />
           case 'auth': return <Auth key={key} {...p} />
+          case 'settingsPage': return <SettingsPageView key={key} page={route.page} {...p} />
         }
       })}
 

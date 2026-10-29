@@ -195,3 +195,96 @@ export function PriorityDot({ p, size = 22 }: { p: 'low' | 'normal' | 'high'; si
     </svg>
   )
 }
+
+export const Tag = (p: P) => (
+  <S {...p}>
+    <path d="M3.5 12.6V5a1.5 1.5 0 0 1 1.5-1.5h7.6a1.5 1.5 0 0 1 1.06.44l6.9 6.9a1.5 1.5 0 0 1 0 2.12l-7.6 7.6a1.5 1.5 0 0 1-2.12 0l-6.9-6.9a1.5 1.5 0 0 1-.44-1.06z" transform="rotate(90 12 12)" />
+    <circle cx="16" cy="8" r="1.4" fill="currentColor" />
+  </S>
+)
+
+export const Pencil = (p: P) => (
+  <S {...p}>
+    <path d="M4 20l1-4.5L16.5 4a2.1 2.1 0 0 1 3 3L8 18.5 4 20z" />
+  </S>
+)
+
+export const User = (p: P) => (
+  <S {...p} stroke="none" fill="currentColor">
+    <circle cx="12" cy="8" r="4.2" />
+    <path d="M3.5 20.5c0-4 3.8-6.5 8.5-6.5s8.5 2.5 8.5 6.5c0 .55-.45 1-1 1h-15a1 1 0 0 1-1-1z" />
+  </S>
+)
+
+export const Phone = (p: P) => (
+  <S {...p}>
+    <rect x="6.5" y="2.5" width="11" height="19" rx="2.5" />
+    <line x1="10.5" y1="18.5" x2="13.5" y2="18.5" />
+  </S>
+)
+
+export const Cloud = (p: P) => (
+  <S {...p}>
+    <path d="M7 18.5a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 17.9 9.6 4.5 4.5 0 0 1 17.5 18.5z" />
+  </S>
+)
+
+export const Upload = (p: P) => (
+  <S {...p}>
+    <path d="M8 10H6.5A1.5 1.5 0 0 0 5 11.5v8A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5H16" fill="currentColor" />
+    <path d="M12 14V3M8.5 6.5L12 3l3.5 3.5" />
+  </S>
+)
+
+export const Download = (p: P) => (
+  <S {...p}>
+    <path d="M8 6H6.5A1.5 1.5 0 0 0 5 7.5v12A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-12A1.5 1.5 0 0 0 17.5 6H16" fill="currentColor" />
+    <path d="M12 3v11M8.5 10.5L12 14l3.5-3.5" stroke="var(--icon-cut, #000)" />
+  </S>
+)
+
+export const Hand = (p: P) => (
+  <S {...p} strokeWidth={1.8}>
+    <path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11M11 10.5V4a1.5 1.5 0 0 1 3 0v7M14 10.5V5.5a1.5 1.5 0 0 1 3 0V14c0 4-2.5 7-6.5 7-2.6 0-4.2-1.3-5.6-3.6L3.4 14.6a1.5 1.5 0 0 1 2.4-1.8L8 15" fill="currentColor" />
+  </S>
+)
+
+export const Sparkle = (p: P) => (
+  <S {...p} stroke="none" fill="currentColor">
+    <path d="M10 3l1.8 5.2L17 10l-5.2 1.8L10 17l-1.8-5.2L3 10l5.2-1.8z" />
+    <path d="M18 14l.9 2.1L21 17l-2.1.9L18 20l-.9-2.1L15 17l2.1-.9z" />
+  </S>
+)
+
+export const Moon = (p: P) => (
+  <S {...p} stroke="none" fill="currentColor">
+    <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" />
+  </S>
+)
+
+export const HomeAdd = (p: P) => (
+  <S {...p}>
+    <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
+    <line x1="12" y1="8.5" x2="12" y2="15.5" />
+    <line x1="8.5" y1="12" x2="15.5" y2="12" />
+  </S>
+)
+
+export const Timer = (p: P) => (
+  <S {...p}>
+    <circle cx="12" cy="13.5" r="7.5" />
+    <path d="M12 9.5v4l2.5 2M10 2.5h4" />
+  </S>
+)
+
+export const ArrowRight = (p: P) => (
+  <S {...p}>
+    <path d="M4.5 12h15M13.5 6l6 6-6 6" />
+  </S>
+)
+
+export const BellFill = (p: P) => (
+  <S {...p} stroke="none" fill="currentColor">
+    <path d="M12 2.5a6.5 6.5 0 0 0-6.5 6.5v4.3L3.8 16a1 1 0 0 0 .85 1.5h14.7a1 1 0 0 0 .85-1.5l-1.7-2.7V9A6.5 6.5 0 0 0 12 2.5zM9.5 19a2.5 2.5 0 0 0 5 0z" />
+  </S>
+)

@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { useSettings, useStore } from '../lib/store'
 import { useHabits, useTodos, todosForDay } from '../lib/selectors'
 import { addDays, MONTHS_SHORT, parse, WEEKDAYS, weekDays } from '../lib/date'
-import { countOn, doneOn, habitsForDay, isOpen } from '../lib/habits'
+import { countOn, doneOn, habitsForDay, isOpen, periodProgress } from '../lib/habits'
 import { setMood, tapHabit } from '../lib/actions'
 import { MOODS } from '../lib/templates'
 import { nav, useUI } from '../lib/nav'
@@ -111,12 +111,14 @@ export function Today() {
       ) : dayHabits.map(h => {
         const c = countOn(entries, h.id, day)
         const done = c >= h.goal
+        const period = periodProgress(h, entries, day)
         return (
           <button key={h.id} className={`card habit-row${done ? ' done' : ''}`} onClick={() => nav.open({ kind: 'habitDetail', id: h.id })}>
             <span className="emoji">{h.emoji}</span>
             <span className="name">
               {h.name}
               {h.goal > 1 && <span className="sub">{c} / {h.goal} {h.unit}</span>}
+              {period && <span className="sub">{period.done} / {period.target} {h.schedule.type === 'perWeek' ? 'diese Woche' : 'diesen Monat'}</span>}
             </span>
             <CheckCircle count={c} goal={h.goal} onClick={() => tapHabit(h, day)} />
           </button>

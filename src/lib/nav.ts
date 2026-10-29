@@ -5,6 +5,8 @@ import type { When } from './types'
 
 export type Tab = 'today' | 'habits' | 'todos' | 'stats' | 'settings'
 
+export type SettingsPage = 'profile' | 'pro' | 'appearance' | 'notifications' | 'sync' | 'privacy' | 'install' | 'whatsnew'
+
 export type TodoFilter = 'all' | 'high' | 'normal' | 'low' | 'overdue' | 'dueToday' | 'focus'
 
 export type Route =
@@ -16,6 +18,7 @@ export type Route =
   | { kind: 'archive' }
   | { kind: 'focus'; todoId?: string }
   | { kind: 'auth' }
+  | { kind: 'settingsPage'; page: SettingsPage }
 
 export interface MenuItem {
   label: string

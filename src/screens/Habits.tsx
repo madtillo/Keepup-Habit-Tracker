@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useSettings, useStore } from '../lib/store'
 import { useHabits } from '../lib/selectors'
 import { addMonths, iso, MONTHS, monthDays, weekday } from '../lib/date'
-import { countOn, currentStreak, doneOn, isScheduled } from '../lib/habits'
+import { countOn, currentStreak, doneOn, isScheduled, periodProgress } from '../lib/habits'
 import { tapHabit, updateSettings } from '../lib/actions'
 import { nav } from '../lib/nav'
 import { CheckCircle, MonthNav, useToday } from '../components/ui'
@@ -58,6 +58,8 @@ export function Habits() {
       {settings.habitView === 'list' ? habits.map(h => {
         const c = countOn(entries, h.id, today)
         const streak = currentStreak(h, entries, today)
+        const period = periodProgress(h, entries, today)
+        const [num, den] = period ? [period.done, period.target] : [c, h.goal]
         return (
           <button key={h.id} className="card habit-card" onClick={() => nav.open({ kind: 'habitDetail', id: h.id })}>
             <div className="top">
@@ -65,12 +67,12 @@ export function Habits() {
               <span className="name">{h.name}</span>
               <CheckCircle count={c} goal={h.goal} size="sm" onClick={() => tapHabit(h, today)} />
             </div>
-            <div className="progress-num">{c} / {h.goal}{h.unit && h.goal > 1 ? <span className="muted" style={{ fontSize: 18 }}> {h.unit}</span> : null}</div>
+            <div className="progress-num">{num} / {den}{h.unit && h.goal > 1 && !period ? <span className="muted" style={{ fontSize: 18 }}> {h.unit}</span> : null}</div>
             <div className="meta">
-              <span>{isScheduled(h, today) ? 'Heutiges Ziel' : 'Heute frei'}</span>
+              <span>{h.schedule.type === 'perWeek' ? 'Wochenziel' : h.schedule.type === 'perMonth' ? 'Monatsziel' : isScheduled(h, today) ? 'Heutiges Ziel' : 'Heute frei'}</span>
               <span className="streak">🔥 {streak}</span>
             </div>
-            <div className="bar"><div style={{ width: `${Math.min(100, (c / h.goal) * 100)}%` }} /></div>
+            <div className="bar"><div style={{ width: `${Math.min(100, (num / den) * 100)}%` }} /></div>
           </button>
         )
       }) : habits.length > 0 && (

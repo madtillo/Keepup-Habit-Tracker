@@ -14,6 +14,7 @@ export const DEFAULT_SETTINGS: Settings = {
   habitSort: 'custom',
   focusMinutes: 25,
   moodReminder: null,
+  name: '',
 }
 
 type AnyRec = DB[Coll][string]

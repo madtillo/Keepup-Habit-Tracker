@@ -8,12 +8,12 @@ Läuft im Browser und lässt sich auf dem iPhone wie eine normale App auf den Ho
 | Bereich | Was drin ist |
 |---|---|
 | **Heute** | Wochenleiste (wischen für andere Wochen), Tagesfortschritts-Ring, Stimmungsabfrage, Habits & Aufgaben des Tages, ➕-Button |
-| **Habits** | Unbegrenzt viele Habits, Listen- und Monatsraster-Ansicht, Sortierung, Archiv, 30+ Vorlagen in 10 Kategorien, eigene Habits mit Emoji, Kategorie, **Mengenzielen** (z. B. 8 Gläser), **Rhythmus** (täglich / bestimmte Wochentage / X-mal pro Woche) und mehreren **Erinnerungszeiten** |
+| **Habits** | Unbegrenzt viele Habits, Listen- und Monatsraster-Ansicht, Sortierung, Archiv, 30+ Vorlagen in 10 Kategorien, eigene Habits mit Emoji, Kategorie, **Mengenzielen** (z. B. 8 Gläser), **Ziel** täglich (mit Wochentagen), wöchentlich oder monatlich (X-mal pro Woche/Monat) und mehreren **Erinnerungszeiten** |
 | **Habit-Detail** | Aktuelle Serie, Diesen Monat, Beste Serie, Monatsübersicht (Tag antippen = Status ändern), Erfolgsquote, Bearbeiten, Archivieren, Löschen |
 | **Aufgaben** | Übersicht (Überfällig / Offen / Heute fällig), Prioritäts-Karten (Hoch / Normal / Niedrig), Fokus-Liste, Wann (Heute / Diese Woche / Dieser Monat), Fälligkeitsdatum, Notiz, Filter, erledigte Aufgaben |
 | **Fokus-Timer** | Pomodoro-Timer (5–90 min), optional an eine Aufgabe gekoppelt, Minuten fließen in die Statistik |
 | **Statistik** | Wochen-Verlaufsdiagramm mit Navigation, Kennzahlen (Erfolgsquote, perfekte Tage, beste Serie, Fokus-Minuten, erledigte Todos), Stimmungskalender mit Monatsauswertung, Erfolgsquote je Habit (7/30/90 Tage), 6-Monats-Heatmap |
-| **Einstellungen** | Konto & Sync, Push-Erinnerungen, tägliche Stimmungs-Erinnerung, Dunkel/Hell/System, Akzentfarbe, Backup Export/Import |
+| **Einstellungen** | Profil, Pro-Karte, Darstellung (Dunkel/Hell/System, Akzentfarbe), Mitteilungen, Cloud-Sync, Sicherung exportieren/wiederherstellen, Datenschutz, Installationshilfe |
 | **Technik** | Funktioniert offline, synchronisiert automatisch über alle Geräte (Supabase), echte Push-Benachrichtigungen auch bei geschlossener App |
 
 Nicht möglich als Web-App: iOS-Homescreen-**Widgets** (dafür bräuchte es eine native App).
@@ -71,8 +71,8 @@ Repo verbinden, Build-Befehl `npm run build`, Ausgabeordner `dist`, die drei Var
 
 1. Die App-Adresse in **Safari** öffnen.
 2. **Teilen → Zum Home-Bildschirm**.
-3. Keepup **vom Home-Bildschirm** öffnen → **Einstellungen → Anmelden & synchronisieren** → Konto erstellen.
-4. **Einstellungen → Push-Benachrichtigungen** einschalten und erlauben (funktioniert auf iOS nur in der installierten App, ab iOS 16.4).
+3. Keepup **vom Home-Bildschirm** öffnen → **Einstellungen → Cloud-Sync** → Konto erstellen.
+4. **Einstellungen → Mitteilungen** einschalten und erlauben (funktioniert auf iOS nur in der installierten App, ab iOS 16.4).
 5. Mit „Test-Benachrichtigung“ prüfen.
 
 Auf weiteren Geräten einfach mit demselben Konto anmelden – alles wird synchronisiert.

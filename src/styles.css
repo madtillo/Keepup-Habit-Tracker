@@ -939,3 +939,97 @@ input[type='time'].time-input, input[type='date'].date-input {
   .tabbar button { font-size: 9.5px; }
   .mood-btn { width: 44px; height: 44px; font-size: 23px; }
 }
+
+/* ---------- Habit erstellen ---------- */
+
+.title-row { display: flex; gap: 12px; margin-top: 22px; }
+.title-row .input { height: 62px; }
+.emoji-btn {
+  width: 62px;
+  height: 62px;
+  flex-shrink: 0;
+  border-radius: 18px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  font-size: 32px;
+  display: grid;
+  place-items: center;
+}
+.form-card { padding: 18px 16px; margin-top: 18px; }
+.form-card h3 { font-size: 18px; font-weight: 600; margin: 0 0 14px; }
+.period-pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.period-pills button {
+  height: 36px;
+  border-radius: 12px;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s;
+}
+.period-pills button.active { background: #ecebe6; color: #111; border-color: transparent; }
+.goal-line { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; font-size: 17px; }
+.unit-input { width: 100%; margin-top: 12px; background: var(--card-2); border: 0; border-radius: 12px; padding: 12px 14px; font-size: 15px; outline: none; }
+.cat-row { margin-top: 18px; padding: 16px; border-radius: var(--radius); }
+.icon-circle { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border-strong); display: grid; place-items: center; flex-shrink: 0; }
+.plus-light { width: 38px; height: 38px; border-radius: 50%; background: #ecebe6; color: #111; display: grid; place-items: center; }
+.inner-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 14px;
+  padding: 13px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border-strong);
+  font-size: 17px;
+  font-weight: 550;
+}
+.inner-box + .inner-box { margin-top: 8px; }
+
+/* ---------- Einstellungen ---------- */
+
+.profile-card { display: flex; align-items: center; gap: 18px; padding: 18px 16px; }
+.avatar { position: relative; width: 74px; height: 74px; border-radius: 50%; border: 1.5px solid var(--fg); display: grid; place-items: center; flex-shrink: 0; }
+.avatar-badge {
+  position: absolute; right: -4px; bottom: -4px; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--fg); color: var(--on-fg); border: 3px solid var(--card); display: grid; place-items: center; font-size: 13px; font-weight: 800;
+}
+.profile-name { font-size: 22px; font-weight: 600; }
+.profile-sub svg { flex-shrink: 0; }
+.ellipsis { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.profile-sub { display: flex; align-items: center; gap: 8px; font-size: 15px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.pro-card { margin-top: 26px; padding: 22px 18px 18px; display: grid; grid-template-columns: 1fr auto; gap: 0 12px; }
+.pro-brand { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 600; }
+.pro-pill { background: #ecebe6; color: #111; font-size: 12px; font-weight: 800; letter-spacing: 1.5px; padding: 4px 10px; border-radius: 999px; }
+.pro-title { font-size: 22px; font-weight: 650; line-height: 1.25; margin-top: 12px; max-width: 200px; }
+.pro-art { position: relative; width: 96px; height: 70px; align-self: center; }
+.pro-art .tile {
+  position: absolute; width: 50px; height: 50px; border-radius: 13px; display: grid; place-items: center; font-weight: 800;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+}
+.pro-art .light { left: 0; top: 14px; background: linear-gradient(160deg, #f4f2ec, #cfccc4); color: #222; transform: rotate(-8deg); z-index: 1; font-size: 22px; }
+.pro-art .dark { right: 0; top: 0; background: linear-gradient(160deg, #4a4a4e, #1f1f22); color: #ddd; transform: rotate(10deg); font-size: 12px; letter-spacing: -2px; }
+.pro-desc { grid-column: 1 / -1; font-size: 16px; line-height: 1.4; margin: 16px 0; }
+.pro-btn {
+  grid-column: 1 / -1; height: 50px; border-radius: 16px; background: #ecebe6; color: #111;
+  font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.set-title { font-size: 22px; font-weight: 650; margin-top: 30px; }
+.set-group { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 0; }
+.set-row { display: flex; align-items: center; gap: 14px; width: 100%; padding: 0 16px; text-align: left; }
+.set-row:active:not(.static) { background: var(--card-2); }
+.set-icon {
+  width: 40px; height: 40px; border-radius: 11px; background: var(--card-2); display: grid; place-items: center; flex-shrink: 0;
+  --icon-cut: var(--card-2);
+}
+.set-body { flex: 1; display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 0; min-width: 0; }
+.set-row + .set-row .set-body { border-top: 1px solid var(--border-strong); }
+.set-label { flex: 1; font-size: 17px; font-weight: 550; min-width: 0; }
+.set-value { color: var(--text-2); font-size: 16px; white-space: nowrap; }
+.set-chev { color: var(--text-2); flex-shrink: 0; }
+
+:root[data-theme='light'] .period-pills button.active,
+:root[data-theme='light'] .plus-light,
+:root[data-theme='light'] .pro-pill,
+:root[data-theme='light'] .pro-btn { background: var(--fg); color: var(--on-fg); }

@@ -3,6 +3,7 @@ export type Schedule =
   | { type: 'daily' }
   | { type: 'weekdays'; days: number[] }
   | { type: 'perWeek'; count: number }
+  | { type: 'perMonth'; count: number }
 
 interface Base {
   id: string
@@ -66,6 +67,7 @@ export interface Settings extends Base {
   habitSort: 'custom' | 'name' | 'streak'
   focusMinutes: number
   moodReminder: string | null
+  name: string
 }
 
 export interface DB {
