@@ -1,5 +1,5 @@
 /* Keepup Service Worker: Offline-Cache + Push-Erinnerungen */
-const CACHE = 'keepup-v1'
+const CACHE = 'keepup-v2'
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', './index.html', './manifest.webmanifest', './icons/icon-192.png'])))
