@@ -1,6 +1,6 @@
 # Keepup – Habits, Todos, Stimmung & Fokus
 
-Private Web-App (PWA) nach dem Vorbild von Upwell – mit allen Pro-Funktionen, kostenlos.
+Private Web-App (PWA) für Gewohnheiten, Aufgaben, Stimmung und Fokus – alle Funktionen kostenlos.
 Läuft im Browser und lässt sich auf dem iPhone wie eine normale App auf den Home-Bildschirm legen.
 
 ## Funktionen
