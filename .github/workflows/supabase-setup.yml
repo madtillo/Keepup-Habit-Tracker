@@ -1,0 +1,68 @@
+name: Supabase einrichten
+
+# Richtet Datenbank, Erinnerungsdienst, Secrets und Zeitplan automatisch ein.
+# Start: Actions → "Supabase einrichten" → Run workflow. Kann gefahrlos mehrfach laufen.
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Eingaben prüfen
+        env:
+          VAPID_PUBLIC_KEY: ${{ vars.VITE_VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          missing=""
+          [ -z "$SUPABASE_ACCESS_TOKEN" ] && missing="$missing SUPABASE_ACCESS_TOKEN(Secret)"
+          [ -z "$SUPABASE_DB_PASSWORD" ] && missing="$missing SUPABASE_DB_PASSWORD(Secret)"
+          [ -z "$VAPID_PRIVATE_KEY" ] && missing="$missing VAPID_PRIVATE_KEY(Secret)"
+          [ -z "$CRON_SECRET" ] && missing="$missing CRON_SECRET(Secret)"
+          [ -z "$PROJECT_REF" ] && missing="$missing SUPABASE_PROJECT_REF(Variable)"
+          [ -z "$VAPID_PUBLIC_KEY" ] && missing="$missing VITE_VAPID_PUBLIC_KEY(Variable)"
+          if [ -n "$missing" ]; then echo "::error::Es fehlen:$missing"; exit 1; fi
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Projekt verbinden
+        run: supabase link --project-ref "$PROJECT_REF"
+
+      - name: Zeitplan-Migration erzeugen
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          file="supabase/migrations/$(date -u +%Y%m%d%H%M%S)_keepup_cron.sql"
+          sed -e "s|DEIN-PROJEKT|$PROJECT_REF|" -e "s|DEIN-GEHEIMNIS|$CRON_SECRET|" supabase/cron.sql > "$file"
+          echo "Erzeugt: $file"
+
+      - name: Datenbank einrichten
+        run: supabase db push --include-all
+
+      - name: Secrets setzen
+        env:
+          VAPID_PUBLIC_KEY: ${{ vars.VITE_VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_SUBJECT: ${{ vars.VAPID_SUBJECT || 'mailto:keepup@example.com' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          supabase secrets set --project-ref "$PROJECT_REF" \
+            "VAPID_PUBLIC_KEY=$VAPID_PUBLIC_KEY" \
+            "VAPID_PRIVATE_KEY=$VAPID_PRIVATE_KEY" \
+            "VAPID_SUBJECT=$VAPID_SUBJECT" \
+            "CRON_SECRET=$CRON_SECRET"
+
+      - name: Erinnerungsdienst hochladen
+        run: supabase functions deploy send-reminders --project-ref "$PROJECT_REF" --no-verify-jwt --use-api
+
+      - name: Fertig
+        run: echo "✅ Supabase ist eingerichtet. Jetzt den Workflow 'Deploy Keepup' starten."

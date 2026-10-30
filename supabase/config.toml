@@ -1,0 +1,5 @@
+# Minimale Supabase-Konfiguration für die automatische Einrichtung per GitHub Actions
+project_id = "keepup"
+
+[functions.send-reminders]
+verify_jwt = false

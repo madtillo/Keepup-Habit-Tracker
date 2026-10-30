@@ -20,12 +20,23 @@ Nicht möglich als Web-App: iOS-Homescreen-**Widgets** (dafür bräuchte es eine
 
 ---
 
-## Einrichtung (einmalig, ca. 20 Minuten)
+## Einrichtung – Variante A: automatisch per GitHub (empfohlen, auch vom iPhone)
+
+1. **Supabase-Projekt anlegen** auf <https://supabase.com> (Region Frankfurt). Datenbank-Passwort merken.
+2. **Authentication → Sign In / Providers → Email:** „Confirm email“ ausschalten.
+3. **Zugangstoken erstellen:** <https://supabase.com/dashboard/account/tokens> → *Generate new token* → kopieren.
+4. Im GitHub-Repo unter **Settings → Secrets and variables → Actions** eintragen:
+   - Reiter **Secrets**: `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `VAPID_PRIVATE_KEY`, `CRON_SECRET`
+   - Reiter **Variables**: `SUPABASE_PROJECT_REF` (Projekt-ID), `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_VAPID_PUBLIC_KEY`, optional `VAPID_SUBJECT` (`mailto:deine@mail.de`)
+5. **Actions → „Supabase einrichten“ → Run workflow.** Erledigt Datenbank, Erinnerungsdienst, Secrets und Zeitplan.
+6. Danach **Actions → „Deploy Keepup“ → Run workflow** (siehe Schritt 5 unten zu GitHub Pages).
+
+## Einrichtung – Variante B: manuell im Supabase-Dashboard (ca. 20 Minuten)
 
 ### 1. Supabase-Projekt anlegen (kostenlos)
 
 1. Auf <https://supabase.com> registrieren → **New project** (Region z. B. Frankfurt).
-2. **SQL Editor** öffnen → Inhalt von [`supabase/migrations/001_keepup.sql`](supabase/migrations/001_keepup.sql) einfügen → **Run**.
+2. **SQL Editor** öffnen → Inhalt von [`supabase/migrations/20261029000000_keepup.sql`](supabase/migrations/20261029000000_keepup.sql) einfügen → **Run**.
 3. **Authentication → Sign In / Providers → Email**: aktiviert lassen. Tipp: **Confirm email** ausschalten, dann kannst du dich sofort ohne Bestätigungsmail anmelden.
 4. **Project Settings → API**: `Project URL` und `anon public` Key notieren.
 
